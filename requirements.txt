@@ -1,0 +1,15 @@
+torch
+transformers
+sentence-transformers
+scikit-learn
+numpy
+pandas
+matplotlib
+seaborn
+openai
+bnlearn
+pgmpy
+causal-learn
+vllm            # optional, needs GPU
+jupyter
+tqdm
