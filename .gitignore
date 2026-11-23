@@ -34,3 +34,4 @@ experiments/**/*.csv
 Thumbs.db
 .idea/
 .vscode/
+reference/
