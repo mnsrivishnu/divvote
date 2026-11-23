@@ -66,14 +66,17 @@ For each ordered pair (X, Y) in V x V:
 Return the resulting directed graph G
 ```
 
-### 2.4 Benchmarks
-- **Asia** (8 variables, 8 edges) — smallest, classic Lauritzen & Spiegelhalter 1988 lung-disease network.
-- **Cancer** (5 variables, 4 edges) — simplest sanity-check network.
-- **Medical Diagnostic** (~18 variables, ~25 edges) — general hospital diagnostic reasoning.
-- **Covid-19** (~12 variables, ~18 edges) — modern (built 2020-2022), not in LLM pre-training as a textbook example.
-- **Endorisk** (~20 variables, ~25 edges) — endometrial-cancer risk clinical network; largest and hardest.
+### 2.4 Benchmarks (counts from base paper Table I — authoritative)
+- **Asia** (8 nodes, 8 edges) — classic Lauritzen & Spiegelhalter 1988 lung-disease network. Source: bnlearn repository [ref 37].
+- **Cancer** (5 nodes, 4 edges) — simplest sanity-check network. Source: bnlearn repository [ref 37].
+- **Medical Diagnostic** (10 nodes, 9 edges) — small cardiovascular-disease detection network. Source: bnlearn repository [ref 37].
+- **Covid-19** (11 nodes, 20 edges) — modern COVID-19 disease-process network elicited from medical experts. Source: Mascaro et al., BMC Med. Res. Methodol. 2023 [ref 38].
+- **Endorisk** (18 nodes, 37 edges) — endometrial-cancer lymph-node-metastasis risk clinical network; largest and hardest. Source: Reijnen et al., PLoS Med. 2020 [ref 39].
 
-All five are publicly available in standard `.bif` format from bnlearn.com/bnrepository/.
+NOTE: The authoritative copies of all five networks are in the base paper's own GitHub repo:
+https://github.com/ExcellentDarkTea/LLM-Causal-Discovery
+Use those files so the head-to-head comparison is on the exact same graphs the base paper used.
+Base paper setup to match for reproduction: GPT-4o-mini, temperature 0, LangChain, majority-vote threshold k >= 4 of 7.
 
 ### 2.5 Metrics
 - **SHD (Structural Hamming Distance)** = (missing edges) + (extra edges) + (reversed edges). Master metric. Lower = better.
@@ -197,14 +200,16 @@ Return directed graph G with per-edge confidence
 
 ## 7. Evaluation Plan
 
-### 7.1 Datasets (same as base paper)
-- Asia (8 variables)
-- Cancer (5 variables)
-- Medical Diagnostic (~18 variables)
-- Covid-19 (~12 variables)
-- Endorisk (~20 variables)
+### 7.1 Datasets (same as base paper — counts from Table I)
+- Asia (8 nodes, 8 edges)
+- Cancer (5 nodes, 4 edges)
+- Medical Diagnostic (10 nodes, 9 edges)
+- Covid-19 (11 nodes, 20 edges)
+- Endorisk (18 nodes, 37 edges)
 
-All available from bnlearn.com/bnrepository/ as .bif files, or via the Python `bnlearn` package.
+Authoritative source for all five: the base paper's GitHub repo
+https://github.com/ExcellentDarkTea/LLM-Causal-Discovery
+(Asia, Cancer, Medical Diagnostic also exist in the bnlearn repository [ref 37]; Covid-19 from [ref 38]; Endorisk from [ref 39].)
 
 ### 7.2 Metrics
 - **SHD** — primary metric; direct comparison with base paper.

@@ -1,0 +1,5 @@
+Pollution
+Cancer
+Smoker
+Xray
+Dyspnoea
