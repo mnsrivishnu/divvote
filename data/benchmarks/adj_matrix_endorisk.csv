@@ -1,0 +1,19 @@
+,Myometrial invasion,Atypical endometrial in cervical cytology,Preoperative grade,Postoperative grade,Estrogen Receptor,Progesterone Receptor,L1CAM,p53,Lymph node metastasis,LVSI,Thrombocytosis,Nodes on imaging,Ca-125 serum level,Adjuvant therapy,Recurrence,1-year DSS,3-year DSS,5-year DSS
+Myometrial invasion,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0
+Atypical endometrial in cervical cytology,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0
+Preoperative grade,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Postoperative grade,0,0,0,0,1,1,1,1,1,0,0,0,0,1,1,0,0,0
+Estrogen Receptor,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0
+Progesterone Receptor,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0
+L1CAM,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0
+p53,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Lymph node metastasis,0,0,0,0,1,1,1,1,0,0,1,1,1,0,1,0,0,0
+LVSI,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0
+Thrombocytosis,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Nodes on imaging,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+Ca-125 serum level,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0
+Adjuvant therapy,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,1,1
+Recurrence,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1
+1-year DSS,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+3-year DSS,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0
+5-year DSS,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0

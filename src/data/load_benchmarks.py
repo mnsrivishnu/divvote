@@ -1,127 +1,90 @@
-"""Download the 5 benchmark Bayesian networks and save their ground-truth DAGs.
+"""Load the benchmark ground-truth DAGs from the base-paper reference repo.
 
 Purpose
 -------
-Fetch the five medical Bayesian-network benchmarks used in the base paper
-(PLAN.md sections 2.4 / 7.1) via the `bnlearn` Python package, extract each
-network's ground-truth directed adjacency matrix, and save it as a .npy file
-in data/benchmarks/. Prints node and edge counts per network so they can be
-checked against PLAN.md section 2.4.
+Read each benchmark's ground-truth directed adjacency matrix from the base
+paper's own repository (cloned into reference/, from
+https://github.com/ExcellentDarkTea/LLM-Causal-Discovery) and save it as a
+.npy file in data/benchmarks/. Prints node and edge counts per network so they
+can be checked against the known ground-truth sizes.
 
-Adjacency convention: adj[i, j] == 1 means a directed edge node_i -> node_j.
+Adjacency convention: adj[i, j] == 1 means a directed edge node_i -> node_j
+(same orientation as the source CSVs: rows = cause, columns = effect).
 A companion <name>_nodes.txt records the node order for each matrix.
 
-Maps to: Week 1, Days 6-7 (PLAN.md section 10) — "Download 5 benchmarks from
-bnlearn repository; parse to .npy."
+Maps to: Week 1, Days 6-7 (PLAN.md section 10) — "Download 5 benchmarks ...;
+parse to .npy."
 
 Availability note
 -----------------
-Only Asia and Cancer are actually hosted on bnlearn.com/bnrepository. The
-other three networks named in the plan (Medical Diagnostic, Covid-19,
-Endorisk) are NOT in that repository under any standard slug (all return 404),
-so they cannot be downloaded automatically here. Each is left with
-source=None; set its `source` to a .bif URL or a local .bif path once the file
-is obtained, and the loader will handle it the same way.
+The base-paper repo ships ground-truth adjacency CSVs for only THREE of the
+five benchmarks: Asia, Cancer, and Medical Diagnostic (data/adj_matrix_med.csv).
+It contains no Covid-19 or Endorisk network, so those two are left with
+source=None. Drop a CSV (same format: an index column of node names, then a
+0/1 matrix) into reference/data/ or elsewhere and set its `source` to load it.
 
 Run from the repo root:
     python -m src.data.load_benchmarks
 """
 
-import gzip
-import shutil
-import urllib.request
 from pathlib import Path
 
 import numpy as np
-
-try:
-    import bnlearn as bn
-except ImportError as exc:  # pragma: no cover - dependency guard
-    raise SystemExit(
-        "The 'bnlearn' package is required. Install with: pip install bnlearn"
-    ) from exc
+import pandas as pd
 
 
-# Repo-root-relative paths: .../divvote/data/benchmarks
+# Repo-root-relative paths: .../divvote
 REPO_ROOT = Path(__file__).resolve().parents[2]
 OUT_DIR = REPO_ROOT / "data" / "benchmarks"
-BIF_CACHE = OUT_DIR / "_bif_cache"
+REF_DATA = REPO_ROOT / "reference" / "data"
 
 
-# For each benchmark: a `source` and the expected (nodes, edges) from PLAN.md
-# section 2.4 (values prefixed "~" in the plan are approximate).
-# `source` may be:
-#   - a .bif or .bif.gz URL (downloaded + decompressed + parsed),
-#   - a local .bif path,
-#   - a bnlearn built-in short name (e.g. "asia"),
-#   - or None if the network is not yet available.
+# For each benchmark: `source` is a path to a ground-truth adjacency CSV
+# (first column = node-name index, remaining columns = 0/1 adjacency), or None
+# if the network is not available. `expected` is (nodes, edges) for a check.
 BENCHMARKS = {
     "asia": {
-        "source": "https://www.bnlearn.com/bnrepository/asia/asia.bif.gz",
+        "source": REF_DATA / "adj_matrix_asia.csv",
         "expected_nodes": 8,
         "expected_edges": 8,
     },
     "cancer": {
-        "source": "https://www.bnlearn.com/bnrepository/cancer/cancer.bif.gz",
+        "source": REF_DATA / "adj_matrix_cancer.csv",
         "expected_nodes": 5,
         "expected_edges": 4,
     },
     "medical_diagnostic": {
-        # Not on bnrepository (404). Set to a .bif URL or local path to enable.
-        "source": None,
-        "expected_nodes": 18,  # ~18
-        "expected_edges": 25,  # ~25
+        "source": REF_DATA / "adj_matrix_med.csv",
+        "expected_nodes": 10,
+        "expected_edges": 9,
     },
     "covid19": {
-        "source": None,  # not on bnrepository (404) -- see availability note
-        "expected_nodes": 12,  # ~12
-        "expected_edges": 18,  # ~18
+        # Not present in the base-paper repo -- see availability note.
+        "source": None,
+        "expected_nodes": 11,
+        "expected_edges": 20,
     },
     "endorisk": {
-        "source": None,  # not on bnrepository (404) -- see availability note
-        "expected_nodes": 20,  # ~20
-        "expected_edges": 25,  # ~25
+        # Not present in the base-paper repo -- see availability note.
+        "source": None,
+        "expected_nodes": 18,
+        "expected_edges": 37,
     },
 }
 
 
-def _resolve_bif(name, source):
-    """Return a bnlearn-loadable reference for `source`.
-
-    URLs are downloaded into the .bif cache (and gunzipped if needed) and the
-    local path is returned. Local paths and built-in short names pass through.
-    """
-    if source.startswith(("http://", "https://")):
-        BIF_CACHE.mkdir(parents=True, exist_ok=True)
-        if source.endswith(".gz"):
-            gz_path = BIF_CACHE / f"{name}.bif.gz"
-            bif_path = BIF_CACHE / f"{name}.bif"
-            urllib.request.urlretrieve(source, gz_path)
-            with gzip.open(gz_path, "rb") as fin, open(bif_path, "wb") as fout:
-                shutil.copyfileobj(fin, fout)
-            return str(bif_path)
-        bif_path = BIF_CACHE / f"{name}.bif"
-        urllib.request.urlretrieve(source, bif_path)
-        return str(bif_path)
-    # Local .bif path or bnlearn built-in short name.
-    return source
-
-
-def load_dag(name, source):
-    """Import a DAG via bnlearn and return (adjacency int matrix, node list).
+def load_dag(source):
+    """Read an adjacency CSV and return (adjacency int matrix, node list).
 
     adj[i, j] == 1 means a directed edge node_i -> node_j.
     """
-    ref = _resolve_bif(name, source)
-    model = bn.import_DAG(ref, CPD=False, checkmodel=False)
-    adjmat = model.get("adjmat")
-    if adjmat is None:
+    df = pd.read_csv(source, index_col=0)
+    if df.shape[0] != df.shape[1]:
         raise ValueError(
-            f"bnlearn returned no adjacency matrix for source {source!r} "
-            "(unknown built-in name or unparseable file)"
+            f"adjacency matrix is not square: {df.shape[0]}x{df.shape[1]}"
         )
-    nodes = list(adjmat.columns)  # rows=source, cols=target
-    adj = adjmat.to_numpy().astype(int)
+    nodes = [str(c) for c in df.columns]
+    adj = df.to_numpy().astype(int)
     return adj, nodes
 
 
@@ -142,26 +105,28 @@ def main():
 
     for name, cfg in BENCHMARKS.items():
         source = cfg["source"]
-        exp = f"~{cfg['expected_nodes']}/{cfg['expected_edges']}"
+        exp_n, exp_e = cfg["expected_nodes"], cfg["expected_edges"]
+        exp = f"{exp_n}/{exp_e}"
 
         if source is None:
             print(f"{name:<20}{'--':>8}{'--':>8}   {exp:<10} SKIPPED (no source)")
             continue
 
         try:
-            adj, nodes = load_dag(name, source)
+            adj, nodes = load_dag(source)
         except Exception as exc:  # noqa: BLE001 - report and continue
             print(f"{name:<20}{'--':>8}{'--':>8}   {exp:<10} FAILED: {exc}")
             continue
 
         n_nodes, n_edges = len(nodes), int(adj.sum())
         save_benchmark(name, adj, nodes)
-        print(f"{name:<20}{n_nodes:>8}{n_edges:>8}   {exp:<10} ok")
+        match = "ok" if (n_nodes, n_edges) == (exp_n, exp_e) else "MISMATCH"
+        print(f"{name:<20}{n_nodes:>8}{n_edges:>8}   {exp:<10} {match}")
 
     print(
-        "\nNote: medical_diagnostic, covid19 and endorisk are not on "
-        "bnlearn.com/bnrepository.\nObtain each .bif and set its 'source' in "
-        "BENCHMARKS (a URL or local path) to load it."
+        "\nNote: the base-paper repo has no Covid-19 or Endorisk network, so "
+        "those two\nare skipped. Add an adjacency CSV and set its 'source' in "
+        "BENCHMARKS to load it."
     )
 
 

@@ -1,0 +1,12 @@
+,Virus enters URT,URT epithelial infection,Infection of olfactory epithelium,Anosmia and/or ageusia,Alveolar epithelial infection,Alveolar endothelial infection,Viremia,Systemic immune/inflammatory response,Pulmonary capillary leakage,Dry cough,Productive cough
+Virus enters URT,0,1,0,0,1,0,0,0,0,0,0
+URT epithelial infection,0,0,1,0,1,0,1,1,0,1,0
+Infection of olfactory epithelium,0,0,0,1,0,0,0,0,0,0,0
+Anosmia and/or ageusia,0,0,0,0,0,0,0,0,0,0,0
+Alveolar epithelial infection,0,0,0,0,0,1,1,1,1,0,1
+Alveolar endothelial infection,0,0,0,0,0,0,1,1,1,0,0
+Viremia,0,0,0,0,0,0,0,1,0,0,0
+Systemic immune/inflammatory response,0,0,0,0,0,0,0,0,1,0,0
+Pulmonary capillary leakage,0,0,0,0,0,0,0,0,0,1,1
+Dry cough,0,0,0,0,0,0,0,0,0,0,0
+Productive cough,0,0,0,0,0,0,0,0,0,0,0

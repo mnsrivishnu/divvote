@@ -1,8 +1,8 @@
-asia
-tub
-smoke
-lung
-bronc
-either
-xray
-dysp
+Visited_Asia
+Smoker
+Tuberculosis
+Lung_Cancer
+Bronchitis
+individual_has_either_Tuberculosis_or_Lung_Cancer
+X-ray_Result
+Dyspnea

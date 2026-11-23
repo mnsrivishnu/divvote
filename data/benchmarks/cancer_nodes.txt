@@ -1,5 +1,5 @@
-Pollution
-Cancer
+Exposure_to_pollutants
 Smoker
-Xray
-Dyspnoea
+individual_has_Cancer
+Dyspnea
+X-ray_Result
