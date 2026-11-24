@@ -29,6 +29,9 @@ results/*.png
 results/*.pdf
 experiments/**/*.csv
 
+# --- LLM response cache ---
+data/llm_cache.json
+
 # --- OS / editor ---
 .DS_Store
 Thumbs.db

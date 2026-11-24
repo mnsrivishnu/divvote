@@ -49,7 +49,7 @@ See section 8.1 of `PLAN.md`. Key folders: `src/{prompts,embedding,clustering,vo
 
 ## Current status
 
-Week 1 (Nov 23–30): Foundation — repo setup and benchmark loading. Update this line as the project progresses.
+Week 2 baseline complete and running live; Asia Raw reproduced (SHD 14 vs paper 11, gap attributed to gpt-4o-mini version drift); pruning added.
 
 ## Where to go next
 

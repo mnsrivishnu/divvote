@@ -59,14 +59,16 @@ BENCHMARKS = {
         "expected_edges": 9,
     },
     "covid19": {
-        # Not present in the base-paper repo -- see availability note.
-        "source": None,
+        # Supplied separately (not in the base-paper repo); from Mascaro
+        # et al. 2023 per CLAUDE.md.
+        "source": OUT_DIR / "adj_matrix_covid.csv",
         "expected_nodes": 11,
         "expected_edges": 20,
     },
     "endorisk": {
-        # Not present in the base-paper repo -- see availability note.
-        "source": None,
+        # Supplied separately (not in the base-paper repo); from Reijnen
+        # et al. 2020 per CLAUDE.md.
+        "source": OUT_DIR / "adj_matrix_endorisk.csv",
         "expected_nodes": 18,
         "expected_edges": 37,
     },
@@ -124,9 +126,8 @@ def main():
         print(f"{name:<20}{n_nodes:>8}{n_edges:>8}   {exp:<10} {match}")
 
     print(
-        "\nNote: the base-paper repo has no Covid-19 or Endorisk network, so "
-        "those two\nare skipped. Add an adjacency CSV and set its 'source' in "
-        "BENCHMARKS to load it."
+        "\nNote: Covid-19 and Endorisk are not in the base-paper repo; their "
+        "adjacency\nCSVs were supplied separately in data/benchmarks/."
     )
 
 
