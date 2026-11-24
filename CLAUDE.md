@@ -27,10 +27,11 @@ Base paper reproduction setup to match: GPT-4o-mini, temperature 0, LangChain, m
 
 ## Metrics
 
-- **SHD** (Structural Hamming Distance) — primary metric; lower is better.
-- **TERE** (True Edge Recall Error) — missed true edges.
-- **TENE** (Total Edge Not Expected) — invented false edges.
+- **SHD** (Structural Hamming Distance) — total differing cells; reversed edge counts twice. Primary metric, lower is better.
+- **TENE** (True Edge to Negative Edge) — missed true edges (true=1, pred=0).
+- **TERE** (True Edge to Reverse Edge) — reversed edges (true[i,j]=1, pred[j,i]=1).
 - **ECE** (Expected Calibration Error) — new; confidence calibration; target < 0.1.
+- Definitions follow base paper reference/src/metrics.py exactly. A reversed edge counts in BOTH TENE and TERE — preserve this for comparable numbers.
 
 ## Directory layout
 

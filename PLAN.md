@@ -78,10 +78,12 @@ https://github.com/ExcellentDarkTea/LLM-Causal-Discovery
 Use those files so the head-to-head comparison is on the exact same graphs the base paper used.
 Base paper setup to match for reproduction: GPT-4o-mini, temperature 0, LangChain, majority-vote threshold k >= 4 of 7.
 
-### 2.5 Metrics
-- **SHD (Structural Hamming Distance)** = (missing edges) + (extra edges) + (reversed edges). Master metric. Lower = better.
-- **TERE (True Edge Recall Error)** = number of true edges missed by the algorithm. Measures recall failure.
-- **TENE (Total Edge Not Expected)** = number of false edges added by the algorithm. Measures hallucination.
+### 2.5 Metrics (definitions match base paper reference/src/metrics.py — authoritative)
+- **SHD (Structural Hamming Distance)** = total count of differing cells between predicted and true adjacency matrices (missing + extra + reversed; a reversed edge counts twice). Master metric. Lower = better.
+- **TENE (True Edge to Negative Edge)** = number of true edges MISSED by the prediction (true=1, pred=0). Measures omission/recall failure.
+- **TERE (True Edge to Reverse Edge)** = number of true edges that appear REVERSED in the prediction (true[i,j]=1 and pred[j,i]=1). Measures direction errors.
+- Normalized: SHD / total cells; TENE / #true edges; TERE / #true edges.
+- NOTE: by these definitions a reversed edge is counted in BOTH TENE and TERE (it is both a missing original and a present mirror). This is the base paper's behavior; preserve it for comparable numbers.
 
 ### 2.6 Key findings (from the base paper's own experiments)
 - Voting with k ≥ 4 beats any single-verb baseline on all 5 benchmarks.
@@ -213,8 +215,8 @@ https://github.com/ExcellentDarkTea/LLM-Causal-Discovery
 
 ### 7.2 Metrics
 - **SHD** — primary metric; direct comparison with base paper.
-- **TERE** — missed true edges.
-- **TENE** — invented false edges.
+- **TENE** (True Edge to Negative Edge) — missed true edges (omission).
+- **TERE** (True Edge to Reverse Edge) — reversed / wrong-direction edges.
 - **ECE (Expected Calibration Error)** — new metric for confidence calibration; target < 0.1.
 - **LLM calls per graph** — cost/efficiency metric.
 - **Statistical significance:** paired t-test or Wilcoxon over 5 runs per benchmark.
