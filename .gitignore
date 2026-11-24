@@ -27,7 +27,13 @@ data/prompts/*.json
 # Canonical reproducibility artifacts are tracked (C6):
 !data/prompts/pool.json
 !data/prompts/medoids.json
+# Section 7.4 cluster-count ablation medoid sets (k=5 is medoids.json):
+!data/prompts/medoids_k3.json
+!data/prompts/medoids_k7.json
+!data/prompts/medoids_k10.json
 results/*.csv
+# Section 7.4 ablation summary (tracked alongside its medoid sets):
+!results/cluster_count_ablation.csv
 results/*.png
 results/*.pdf
 experiments/**/*.csv
