@@ -83,5 +83,54 @@ class TestECEForPrediction(unittest.TestCase):
         self.assertEqual(sum(r["count"] for r in rows), 3)
 
 
+class TestTemperatureScaling(unittest.TestCase):
+    def test_apply_temperature_t1_is_sigmoid(self):
+        # margin = confidence * k; at k=5, confidence 1.0 -> margin 5.
+        m = calibration.margin_from_confidence(np.array([1.0]), k=5)
+        self.assertAlmostEqual(float(m[0]), 5.0)
+        p = calibration.apply_temperature(m, T=1.0)
+        self.assertAlmostEqual(float(p[0]), 1.0 / (1.0 + np.exp(-5.0)))
+
+    def test_fit_softens_overconfident_data(self):
+        # All edges unanimous (margin 5) but only half correct -> raw conf 1.0,
+        # accuracy 0.5. Fitting T should push calibrated confidence toward 0.5
+        # and cut ECE sharply.
+        margin = np.full(20, 5.0)
+        correct = np.array([1.0, 0.0] * 10)
+        raw_conf = margin / 5.0                      # == 1.0 everywhere
+        pre = calibration.ece(raw_conf, correct)
+        self.assertAlmostEqual(pre, 0.5)
+        T = calibration.fit_temperature(margin, correct)
+        self.assertGreater(T, 1.0)                   # softening
+        post_conf = calibration.apply_temperature(margin, T)
+        post = calibration.ece(post_conf, correct)
+        self.assertLess(post, pre)
+        self.assertLess(post, 0.1)
+
+    def test_fit_recovers_true_temperature_and_calibrates(self):
+        # Labels generated exactly from sigmoid(margin / T_true), T_true = 2:
+        # margins 1/3/5 correct at sigmoid(0.5/1.5/2.5). Fit should recover
+        # T ~= 2 and drive post-ECE near 0, well below the raw-margin ECE.
+        n = 1000
+        margins, correct = [], []
+        for m in (1.0, 3.0, 5.0):
+            p = calibration._sigmoid(m / 2.0)
+            n_ones = int(round(n * p))
+            margins += [m] * n
+            correct += [1.0] * n_ones + [0.0] * (n - n_ones)
+        margin = np.array(margins)
+        correct = np.array(correct)
+        pre = calibration.ece(margin / 5.0, correct)       # raw margin-confidence
+        T = calibration.fit_temperature(margin, correct)
+        self.assertAlmostEqual(T, 2.0, places=1)
+        post = calibration.ece(calibration.apply_temperature(margin, T), correct)
+        self.assertLess(post, 0.02)
+        self.assertLess(post, pre)
+
+    def test_empty_fit_returns_identity(self):
+        self.assertEqual(calibration.fit_temperature(np.array([]),
+                                                      np.array([])), 1.0)
+
+
 if __name__ == "__main__":
     unittest.main()

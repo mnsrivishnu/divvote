@@ -91,3 +91,48 @@ def ece_for_prediction(pred_adj, confidence, true_adj, n_bins=DEFAULT_BINS):
     """Convenience wrapper: (ECE, reliability_table) for a predicted graph."""
     conf, correct = confidence_and_correctness(pred_adj, confidence, true_adj)
     return ece(conf, correct, n_bins), reliability_table(conf, correct, n_bins)
+
+
+# --- Post-hoc temperature scaling (Guo et al. 2017) --------------------------
+# DivVote's confidence is a discrete vote margin, so we scale the *signed* vote
+# margin m = (2*score - 1) * k (for a predicted edge, m = confidence * k) and
+# read calibrated confidence as sigmoid(m / T). Unlike logit(confidence), the
+# margin is finite at unanimous agreement, so a single temperature T can pull
+# overconfident unanimous edges toward 0.5. T is fit by minimising negative
+# log-likelihood on a validation set; T > 1 softens, T < 1 sharpens.
+
+def _sigmoid(z):
+    return 1.0 / (1.0 + np.exp(-z))
+
+
+def margin_from_confidence(confidence_edges, k):
+    """Signed vote margin m = confidence * k for already-predicted edges."""
+    return np.asarray(confidence_edges, dtype=float) * k
+
+
+def apply_temperature(margin, T):
+    """Calibrated confidence sigmoid(margin / T) for a vote margin array."""
+    return _sigmoid(np.asarray(margin, dtype=float) / float(T))
+
+
+def fit_temperature(margin, correct, t_grid=None):
+    """Fit temperature T on (margin, correctness) by minimising NLL.
+
+    Returns T > 0. Uses a deterministic 1-D grid (no SciPy dependency); the grid
+    is dense near 1 and extends high enough to flatten extreme overconfidence.
+    Returns 1.0 (identity) if there is nothing to fit.
+    """
+    margin = np.asarray(margin, dtype=float)
+    correct = np.asarray(correct, dtype=float)
+    if margin.size == 0:
+        return 1.0
+    if t_grid is None:
+        t_grid = np.concatenate([np.linspace(0.05, 5.0, 496),
+                                 np.linspace(5.1, 50.0, 450)])
+    best_T, best_nll = 1.0, np.inf
+    for T in t_grid:
+        p = np.clip(_sigmoid(margin / T), 1e-12, 1 - 1e-12)
+        nll = -float(np.sum(correct * np.log(p) + (1 - correct) * np.log(1 - p)))
+        if nll < best_nll:
+            best_nll, best_T = nll, float(T)
+    return best_T
