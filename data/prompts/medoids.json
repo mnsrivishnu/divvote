@@ -1,0 +1,88 @@
+{
+  "metadata": {
+    "date": "2026-11-24",
+    "encoder": "BAAI/bge-m3",
+    "k": 5,
+    "random_state": 42,
+    "pool_size": 23,
+    "source_pool": "pool.json",
+    "source_pool_encoder": "BAAI/bge-m3"
+  },
+  "medoids": [
+    "Does {X} occur before {Y}?",
+    "If we take action on {X}, does it result in a change in {Y}?",
+    "Can {X} heighten the chances of {Y} occurring?",
+    "Is it possible for {Y} to take place without the presence of {X}?",
+    "Is {Y} a direct mechanistic consequence of {X}?"
+  ],
+  "medoids_detail": [
+    {
+      "cluster": 0,
+      "text": "Does {X} occur before {Y}?",
+      "category": "temporal",
+      "pool_index": 20,
+      "cluster_size": 3,
+      "members": [
+        "Does {X} occur before {Y}?",
+        "Is {Y} a consequence of {X} happening first?",
+        "Is there a time gap between {X} and {Y} where {X} comes first?"
+      ]
+    },
+    {
+      "cluster": 1,
+      "text": "If we take action on {X}, does it result in a change in {Y}?",
+      "category": "interventional",
+      "pool_index": 15,
+      "cluster_size": 4,
+      "members": [
+        "Does changing {X} lead to a change in {Y}?",
+        "If we modify {X}, will {Y} be affected?",
+        "By intervening on {X}, can we observe a difference in {Y}?",
+        "If we take action on {X}, does it result in a change in {Y}?"
+      ]
+    },
+    {
+      "cluster": 2,
+      "text": "Can {X} heighten the chances of {Y} occurring?",
+      "category": "risk",
+      "pool_index": 6,
+      "cluster_size": 4,
+      "members": [
+        "Does {X} elevate the likelihood of {Y}?",
+        "Is there an increased risk of {Y} associated with {X}?",
+        "Can {X} heighten the chances of {Y} occurring?",
+        "Does {X} pose a greater risk for {Y}?"
+      ]
+    },
+    {
+      "cluster": 3,
+      "text": "Is it possible for {Y} to take place without the presence of {X}?",
+      "category": "counterfactual",
+      "pool_index": 9,
+      "cluster_size": 4,
+      "members": [
+        "Could {Y} happen if {X} did not exist?",
+        "Is it possible for {Y} to take place without the presence of {X}?",
+        "Would {Y} still be a reality in the absence of {X}?",
+        "Can {Y} occur independently of {X}?"
+      ]
+    },
+    {
+      "cluster": 4,
+      "text": "Is {Y} a direct mechanistic consequence of {X}?",
+      "category": "mechanistic",
+      "pool_index": 19,
+      "cluster_size": 8,
+      "members": [
+        "Is {X} a direct cause of {Y}?",
+        "Can {X} directly lead to {Y}?",
+        "Does {Y} result directly from {X}?",
+        "Is there a direct causal relationship between {X} and {Y}?",
+        "Does {X} lead to {Y} through a mechanistic process?",
+        "Is there a mechanistic pathway from {X} to {Y}?",
+        "Can {Y} be considered a mechanistic result of {X}?",
+        "Is {Y} a direct mechanistic consequence of {X}?"
+      ]
+    }
+  ]
+}

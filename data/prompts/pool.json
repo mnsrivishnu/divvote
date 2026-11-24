@@ -1,0 +1,139 @@
+{
+  "metadata": {
+    "date": "2026-11-24",
+    "generator_model": "gpt-4o-mini",
+    "encoder": "BAAI/bge-m3",
+    "dedup_threshold": 0.95,
+    "n_per_category": 4,
+    "n_generated": 24,
+    "n_kept": 23,
+    "n_dropped": 1
+  },
+  "prompts": [
+    "Is {X} a direct cause of {Y}?",
+    "Can {X} directly lead to {Y}?",
+    "Does {Y} result directly from {X}?",
+    "Is there a direct causal relationship between {X} and {Y}?",
+    "Does {X} elevate the likelihood of {Y}?",
+    "Is there an increased risk of {Y} associated with {X}?",
+    "Can {X} heighten the chances of {Y} occurring?",
+    "Does {X} pose a greater risk for {Y}?",
+    "Could {Y} happen if {X} did not exist?",
+    "Is it possible for {Y} to take place without the presence of {X}?",
+    "Would {Y} still be a reality in the absence of {X}?",
+    "Can {Y} occur independently of {X}?",
+    "Does changing {X} lead to a change in {Y}?",
+    "If we modify {X}, will {Y} be affected?",
+    "By intervening on {X}, can we observe a difference in {Y}?",
+    "If we take action on {X}, does it result in a change in {Y}?",
+    "Does {X} lead to {Y} through a mechanistic process?",
+    "Is there a mechanistic pathway from {X} to {Y}?",
+    "Can {Y} be considered a mechanistic result of {X}?",
+    "Is {Y} a direct mechanistic consequence of {X}?",
+    "Does {X} occur before {Y}?",
+    "Is {Y} a consequence of {X} happening first?",
+    "Is there a time gap between {X} and {Y} where {X} comes first?"
+  ],
+  "prompts_with_category": [
+    {
+      "category": "direct",
+      "text": "Is {X} a direct cause of {Y}?"
+    },
+    {
+      "category": "direct",
+      "text": "Can {X} directly lead to {Y}?"
+    },
+    {
+      "category": "direct",
+      "text": "Does {Y} result directly from {X}?"
+    },
+    {
+      "category": "direct",
+      "text": "Is there a direct causal relationship between {X} and {Y}?"
+    },
+    {
+      "category": "risk",
+      "text": "Does {X} elevate the likelihood of {Y}?"
+    },
+    {
+      "category": "risk",
+      "text": "Is there an increased risk of {Y} associated with {X}?"
+    },
+    {
+      "category": "risk",
+      "text": "Can {X} heighten the chances of {Y} occurring?"
+    },
+    {
+      "category": "risk",
+      "text": "Does {X} pose a greater risk for {Y}?"
+    },
+    {
+      "category": "counterfactual",
+      "text": "Could {Y} happen if {X} did not exist?"
+    },
+    {
+      "category": "counterfactual",
+      "text": "Is it possible for {Y} to take place without the presence of {X}?"
+    },
+    {
+      "category": "counterfactual",
+      "text": "Would {Y} still be a reality in the absence of {X}?"
+    },
+    {
+      "category": "counterfactual",
+      "text": "Can {Y} occur independently of {X}?"
+    },
+    {
+      "category": "interventional",
+      "text": "Does changing {X} lead to a change in {Y}?"
+    },
+    {
+      "category": "interventional",
+      "text": "If we modify {X}, will {Y} be affected?"
+    },
+    {
+      "category": "interventional",
+      "text": "By intervening on {X}, can we observe a difference in {Y}?"
+    },
+    {
+      "category": "interventional",
+      "text": "If we take action on {X}, does it result in a change in {Y}?"
+    },
+    {
+      "category": "mechanistic",
+      "text": "Does {X} lead to {Y} through a mechanistic process?"
+    },
+    {
+      "category": "mechanistic",
+      "text": "Is there a mechanistic pathway from {X} to {Y}?"
+    },
+    {
+      "category": "mechanistic",
+      "text": "Can {Y} be considered a mechanistic result of {X}?"
+    },
+    {
+      "category": "mechanistic",
+      "text": "Is {Y} a direct mechanistic consequence of {X}?"
+    },
+    {
+      "category": "temporal",
+      "text": "Does {X} occur before {Y}?"
+    },
+    {
+      "category": "temporal",
+      "text": "Is {Y} a consequence of {X} happening first?"
+    },
+    {
+      "category": "temporal",
+      "text": "Is there a time gap between {X} and {Y} where {X} comes first?"
+    }
+  ],
+  "dropped": [
+    {
+      "text": "Does {X} take place prior to {Y}?",
+      "category": "temporal",
+      "duplicate_of": "Does {X} occur before {Y}?",
+      "cosine": 0.9648
+    }
+  ]
+}

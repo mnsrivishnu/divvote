@@ -24,6 +24,9 @@ ENV/
 # Keep .gitkeep and small tracked inputs; ignore generated artifacts.
 data/benchmarks/*.npy
 data/prompts/*.json
+# Canonical reproducibility artifacts are tracked (C6):
+!data/prompts/pool.json
+!data/prompts/medoids.json
 results/*.csv
 results/*.png
 results/*.pdf

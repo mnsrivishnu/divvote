@@ -115,6 +115,49 @@ def llm_vote(prompt: str, model: str = DEFAULT_MODEL, use_cache: bool = True) ->
     return vote
 
 
+def llm_generate(user: str, system: str = None, model: str = DEFAULT_MODEL,
+                 temperature: float = 0.0, max_tokens: int = 400,
+                 use_cache: bool = True) -> str:
+    """Free-form text completion (used for one-time prompt-pool generation).
+
+    Defaults to temperature=0 for reproducibility (CLAUDE.md). Responses are
+    cached on disk keyed on the messages + model + sampling params.
+    """
+    messages = []
+    if system:
+        messages.append({"role": "system", "content": system})
+    messages.append({"role": "user", "content": user})
+
+    key = _cache_key(
+        json.dumps({"messages": messages, "t": temperature, "mt": max_tokens},
+                   sort_keys=True),
+        model)
+
+    if use_cache:
+        with _cache_lock:
+            cache = _load_cache()
+        if key in cache:
+            return cache[key]["response"]
+
+    client = _get_client()
+    resp = client.chat.completions.create(
+        model=model,
+        messages=messages,
+        temperature=temperature,
+        max_tokens=max_tokens,
+    )
+    text = resp.choices[0].message.content or ""
+
+    if use_cache:
+        with _cache_lock:
+            cache = _load_cache()
+            cache[key] = {"messages": messages, "model": model,
+                          "response": text}
+            _save_cache(cache)
+
+    return text
+
+
 def llm_vote_messages(messages, positive_token: str = "yes",
                       model: str = DEFAULT_MODEL, use_cache: bool = True,
                       max_tokens: int = 5) -> int:
