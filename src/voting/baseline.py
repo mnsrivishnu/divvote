@@ -117,6 +117,52 @@ NODE_STATES = {
         "Lung Cancer": ("Lung Cancer", "Present/Absent"),
         "Cough Up Blood": ("Cough Up Blood", "Yes/No"),
     },
+    # Covid-19 (Mascaro et al. 2023) has no state labels in the base paper's
+    # notebook. States below are INFERRED: every node is a physiological
+    # event/finding modelled as binary present/absent. Flagged inferred (not
+    # transcribed from an authoritative source) per CLAUDE.md honesty rule.
+    "covid19": {
+        "Virus enters URT": ("Virus enters URT", "present/absent"),
+        "URT epithelial infection": ("URT epithelial infection", "present/absent"),
+        "Infection of olfactory epithelium": (
+            "Infection of olfactory epithelium", "present/absent"),
+        "Anosmia and/or ageusia": ("Anosmia and/or ageusia", "present/absent"),
+        "Alveolar epithelial infection": (
+            "Alveolar epithelial infection", "present/absent"),
+        "Alveolar endothelial infection": (
+            "Alveolar endothelial infection", "present/absent"),
+        "Viremia": ("Viremia", "present/absent"),
+        "Systemic immune/inflammatory response": (
+            "Systemic immune/inflammatory response", "present/absent"),
+        "Pulmonary capillary leakage": (
+            "Pulmonary capillary leakage", "present/absent"),
+        "Dry cough": ("Dry cough", "present/absent"),
+        "Productive cough": ("Productive cough", "present/absent"),
+    },
+    # Endorisk (Reijnen et al. 2020). States transcribed VERBATIM from the
+    # source figure (Fig 2A node boxes) and are authoritative.
+    "endorisk": {
+        "Myometrial invasion": ("Myometrial invasion", "None/<50%/>50%"),
+        "Atypical endometrial in cervical cytology": (
+            "Atypical endometrial in cervical cytology", "No/Yes"),
+        "Preoperative grade": ("Preoperative grade", "Grade 1/Grade 2/Grade 3"),
+        "Postoperative grade": ("Postoperative grade", "Grade 1/Grade 2/Grade 3"),
+        "Estrogen Receptor": ("Estrogen Receptor", "Positive/Negative"),
+        "Progesterone Receptor": ("Progesterone Receptor", "Positive/Negative"),
+        "L1CAM": ("L1CAM", "Negative/Positive"),
+        "p53": ("p53", "Wildtype/Mutant"),
+        "Lymph node metastasis": ("Lymph node metastasis", "No/Yes"),
+        "LVSI": ("LVSI", "No/Yes"),
+        "Thrombocytosis": ("Thrombocytosis", "No/Yes"),
+        "Nodes on imaging": ("Nodes on imaging", "No/Yes"),
+        "Ca-125 serum level": ("Ca-125 serum level", "<35 IU/ml/>35 IU/ml"),
+        "Adjuvant therapy": (
+            "Adjuvant therapy", "No/Radiotx/Chemotx/Chemoradio"),
+        "Recurrence": ("Recurrence", "No/Distant/Local"),
+        "1-year DSS": ("1-year DSS", "Yes/No"),
+        "3-year DSS": ("3-year DSS", "Yes/No"),
+        "5-year DSS": ("5-year DSS", "Yes/No"),
+    },
 }
 
 

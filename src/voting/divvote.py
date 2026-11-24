@@ -224,14 +224,17 @@ def compare_benchmarks(specs, model=DEFAULT_MODEL, use_cache=True):
     return rows
 
 
-# Prompt styles per PLAN.md benchmark set: reference where state labels exist,
-# simple for the networks without them (Covid-19, Endorisk).
+# Canonical config: reference style for all five benchmarks. Covid-19 and
+# Endorisk now have NODE_STATES (Endorisk authoritative from Reijnen et al.
+# 2020 Fig 2A; Covid-19 inferred binary present/absent), so the whole set runs
+# under the same base-paper framing -- apples-to-apples with the baseline.
+# (simple style remains available per-benchmark via --prompt-style for ablation.)
 ALL_SPECS = [
     ("asia", "reference"),
     ("cancer", "reference"),
     ("medical_diagnostic", "reference"),
-    ("covid19", "simple"),
-    ("endorisk", "simple"),
+    ("covid19", "reference"),
+    ("endorisk", "reference"),
 ]
 
 
