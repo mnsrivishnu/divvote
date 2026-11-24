@@ -49,7 +49,7 @@ See section 8.1 of `PLAN.md`. Key folders: `src/{prompts,embedding,clustering,vo
 
 ## Current status
 
-Week 2 baseline complete and running live; Asia Raw reproduced (SHD 14 vs paper 11, gap attributed to gpt-4o-mini version drift); pruning added. Week 3 Day 3-4: uniform DivVote (k=5) wins 5/5 vs 7-verb baseline (Raw) under reference framing — Asia -4, Cancer -1, Medical -3, Covid -4, Endorisk -26 SHD. Reference style is now canonical for all five (Covid-19/Endorisk NODE_STATES added: Endorisk authoritative, Covid inferred binary). Medical and Covid are still below the 20% relative-improvement target; to be addressed by reliability weighting (Week 3 Day 5-6).
+Week 2 baseline complete and running live; Asia Raw reproduced (SHD 14 vs paper 11, gap attributed to gpt-4o-mini version drift); pruning added. Week 3 Day 3-4: uniform DivVote (k=5) wins 5/5 vs 7-verb baseline (Raw) under reference framing — Asia -4, Cancer -1, Medical -3, Covid -4, Endorisk -26 SHD. Reference style is now canonical for all five (Covid-19/Endorisk NODE_STATES added: Endorisk authoritative, Covid inferred binary). Medical and Covid are still below the 20% relative-improvement target. Week 3 Day 5-6: learned reliability weighting implemented (weights learned on Asia); at the pre-specified gamma=1 it is a no-op vs uniform (near-flat weights never flip a thresholded edge). A gamma-sweep (experiments/gamma_sweep.py, DESCRIPTIVE ONLY — no gamma selected, to avoid leakage) shows at most -2 SHD on the two large graphs (Covid 27->25, Endorisk 46->44, saturating at gamma>=2) and no change on Cancer/Medical. Weighting alone cannot clear 20% on Medical (17%) or Covid (19%); gap-closing work moves to the 0.5 decision threshold, k, and confidence-based filtering.
 
 ## Where to go next
 
