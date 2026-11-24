@@ -185,6 +185,29 @@ def run_voting(nodes, prompt_style="reference", k=MAJORITY_K,
     return adj
 
 
+def run_voting_per_verb(nodes, prompt_style="reference", model=DEFAULT_MODEL,
+                        use_cache=True, states=None, vote_fn=None):
+    """Return a dict {verb: adjacency} of each verb's yes-votes over all pairs.
+
+    adj[i, j] == 1 iff that single verb voted yes for node_i -> node_j. Used by
+    the per-verb pruning order (prune each verb's graph, then vote).
+    """
+    n = len(nodes)
+    per_verb = {v: np.zeros((n, n), dtype=int) for v in CAUSAL_VERBS}
+    for i in range(n):
+        for j in range(n):
+            if i == j:
+                continue
+            for v in CAUSAL_VERBS:
+                if vote_fn is not None:
+                    vote = vote_fn(nodes[i], nodes[j], v)
+                else:
+                    vote = _vote_pair(nodes[i], nodes[j], v, prompt_style,
+                                      states, model, use_cache)
+                per_verb[v][i, j] = vote
+    return per_verb
+
+
 def _variant_label(cycle_removal, mediator_removal):
     if not cycle_removal and not mediator_removal:
         return "Raw"
@@ -195,12 +218,18 @@ def _variant_label(cycle_removal, mediator_removal):
 
 def run_baseline(benchmark_name, prompt_style="reference", k=MAJORITY_K,
                  model=DEFAULT_MODEL, use_cache=True, vote_fn=None,
-                 cycle_removal=False, mediator_removal=False, verbose=True):
+                 cycle_removal=False, mediator_removal=False,
+                 prune_order="post", verbose=True):
     """Load ground truth, run the baseline, score it, print and return results.
 
     Post-processing (both default off = "Raw"; both on = "Pruned"):
       - cycle_removal: resolve bidirectional 2-cycle conflicts
       - mediator_removal: transitive reduction (drop mediated direct edges)
+
+    prune_order (only relevant when pruning is on):
+      - "post": vote across verbs first, then prune the result (our variant).
+      - "per_verb": prune each per-verb graph (cycle -> mediator, matching the
+        reference per-verb pipeline), THEN majority-vote the pruned graphs.
     """
     true_adj, nodes = load_ground_truth(benchmark_name)
 
@@ -218,26 +247,43 @@ def run_baseline(benchmark_name, prompt_style="reference", k=MAJORITY_K,
                 f"Missing state labels for nodes in '{benchmark_name}': {missing}"
             )
 
+    pruning = cycle_removal or mediator_removal
     variant = _variant_label(cycle_removal, mediator_removal)
+    order = prune_order if pruning else "n/a"
     if verbose:
         n_calls = len(CAUSAL_VERBS) * len(nodes) * (len(nodes) - 1)
         print(f"Running base-paper baseline on '{benchmark_name}' "
               f"({len(nodes)} nodes, prompt_style={prompt_style}, k={k}, "
-              f"variant={variant})")
+              f"variant={variant}, prune_order={order})")
         print(f"LLM calls (max, pre-cache): {n_calls}\n")
 
-    pred_adj, scores = run_voting(
-        nodes, prompt_style=prompt_style, k=k, model=model,
-        use_cache=use_cache, states=states, vote_fn=vote_fn, return_scores=True)
-
-    if cycle_removal or mediator_removal:
-        pred_adj = postprocess.prune(
-            pred_adj, scores=scores,
-            cycle_removal=cycle_removal, mediator=mediator_removal)
+    if pruning and prune_order == "per_verb":
+        # Prune each per-verb graph (cycle -> mediator), then majority-vote.
+        per_verb = run_voting_per_verb(
+            nodes, prompt_style=prompt_style, model=model,
+            use_cache=use_cache, states=states, vote_fn=vote_fn)
+        pruned = [
+            postprocess.prune(m, scores=None, cycle_removal=cycle_removal,
+                              mediator=mediator_removal)
+            for m in per_verb.values()
+        ]
+        stacked = np.sum(pruned, axis=0)
+        pred_adj = (stacked >= k).astype(int)
+        np.fill_diagonal(pred_adj, 0)
+    else:
+        pred_adj, scores = run_voting(
+            nodes, prompt_style=prompt_style, k=k, model=model,
+            use_cache=use_cache, states=states, vote_fn=vote_fn,
+            return_scores=True)
+        if pruning:
+            pred_adj = postprocess.prune(
+                pred_adj, scores=scores,
+                cycle_removal=cycle_removal, mediator=mediator_removal)
 
     result = metrics.evaluate(pred_adj, true_adj)
     result["benchmark"] = benchmark_name
     result["variant"] = variant
+    result["prune_order"] = order
     result["pred_edges"] = int(pred_adj.sum())
     result["true_edges"] = int(true_adj.sum())
     result["pred_adj"] = pred_adj
@@ -278,6 +324,30 @@ def compare_raw_pruned(benchmark_name, prompt_style="reference", k=MAJORITY_K,
     return {"raw": raw, "pruned": pruned}
 
 
+def compare_prune_orders(benchmark_name, prompt_style="reference", k=MAJORITY_K,
+                         model=DEFAULT_MODEL, use_cache=True, vote_fn=None):
+    """Run Raw and both Pruned orders; print a side-by-side SHD/TENE/TERE table."""
+    common = dict(prompt_style=prompt_style, k=k, model=model,
+                  use_cache=use_cache, vote_fn=vote_fn, verbose=False)
+    raw = run_baseline(benchmark_name, cycle_removal=False,
+                       mediator_removal=False, **common)
+    post = run_baseline(benchmark_name, cycle_removal=True,
+                        mediator_removal=True, prune_order="post", **common)
+    perverb = run_baseline(benchmark_name, cycle_removal=True,
+                           mediator_removal=True, prune_order="per_verb",
+                           **common)
+
+    print(f"\n{benchmark_name} - base-paper baseline (prompt_style={prompt_style}, "
+          f"k={k})")
+    print(f"{'metric':<10}{'Raw':>8}{'Pruned':>10}{'Pruned':>12}")
+    print(f"{'':<10}{'':>8}{'(post)':>10}{'(per-verb)':>12}")
+    print("-" * 40)
+    for key, label in [("pred_edges", "edges"), ("SHD", "SHD"),
+                       ("TENE", "TENE"), ("TERE", "TERE")]:
+        print(f"{label:<10}{raw[key]:>8}{post[key]:>10}{perverb[key]:>12}")
+    return {"raw": raw, "post": post, "per_verb": perverb}
+
+
 def main():
     parser = argparse.ArgumentParser(description="Base-paper 7-verb baseline.")
     parser.add_argument("benchmark", help="e.g. asia, cancer, medical_diagnostic")
@@ -290,10 +360,20 @@ def main():
                         help="remove bidirectional 2-cycle conflicts")
     parser.add_argument("--mediator-removal", action="store_true",
                         help="transitive reduction (drop mediated direct edges)")
+    parser.add_argument("--prune-order", choices=["post", "per_verb"],
+                        default="post",
+                        help="when pruning: vote-then-prune (post) or "
+                             "prune-each-verb-then-vote (per_verb)")
     parser.add_argument("--compare", action="store_true",
                         help="run Raw vs Pruned and print a side-by-side table")
+    parser.add_argument("--compare-orders", action="store_true",
+                        help="run Raw, Pruned(post), Pruned(per-verb) side by side")
     args = parser.parse_args()
-    if args.compare:
+    if args.compare_orders:
+        compare_prune_orders(args.benchmark, prompt_style=args.prompt_style,
+                             k=args.k, model=args.model,
+                             use_cache=not args.no_cache)
+    elif args.compare:
         compare_raw_pruned(args.benchmark, prompt_style=args.prompt_style,
                            k=args.k, model=args.model,
                            use_cache=not args.no_cache)
@@ -301,7 +381,8 @@ def main():
         run_baseline(args.benchmark, prompt_style=args.prompt_style, k=args.k,
                      model=args.model, use_cache=not args.no_cache,
                      cycle_removal=args.cycle_removal,
-                     mediator_removal=args.mediator_removal)
+                     mediator_removal=args.mediator_removal,
+                     prune_order=args.prune_order)
 
 
 if __name__ == "__main__":
