@@ -43,6 +43,9 @@ results/*.csv
 !results/clustering_algorithm.csv
 !results/weighting_schemes.csv
 !results/encoder_ablation.csv
+# Section 7.2 seed-stability / statistical-rigor study:
+!results/seed_stability.csv
+!results/seed_stability_paired.csv
 results/*.png
 results/*.pdf
 experiments/**/*.csv

@@ -1,0 +1,6 @@
+benchmark,mean_delta_size_minus_uniform,std_delta,n_size_better,n_tie,n_size_worse,n_seeds
+asia,-0.2500,0.5362,4,16,0,20
+cancer,0.0000,0.0000,0,20,0,20
+medical_diagnostic,-0.2000,0.4000,4,16,0,20
+covid19,-0.4000,0.8000,4,16,0,20
+endorisk,-1.2000,2.5219,4,16,0,20

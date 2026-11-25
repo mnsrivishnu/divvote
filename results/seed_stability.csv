@@ -1,0 +1,11 @@
+benchmark,scheme,baseline_SHD,mean_SHD,std_SHD,min_SHD,max_SHD,n_beat_base,n_tie_base,n_seeds,z_base_minus_mean_over_std
+asia,uniform,14,11.4000,1.2806,10,14,18,2,20,2.0303
+asia,cluster-size,14,11.1500,1.4925,9,14,18,2,20,1.9096
+cancer,uniform,3,2.6000,0.4899,2,3,8,12,20,0.8165
+cancer,cluster-size,3,2.6000,0.4899,2,3,8,12,20,0.8165
+medical_diagnostic,uniform,18,15.0000,0.0000,15,15,20,0,20,inf
+medical_diagnostic,cluster-size,18,14.8000,0.4000,14,15,20,0,20,8.0000
+covid19,uniform,31,28.2500,1.7854,27,32,18,0,20,1.5403
+covid19,cluster-size,31,27.8500,2.1972,25,32,18,0,20,1.4337
+endorisk,uniform,72,51.5000,4.7170,46,56,20,0,20,4.3460
+endorisk,cluster-size,72,50.3000,6.2298,39,56,20,0,20,3.4833
