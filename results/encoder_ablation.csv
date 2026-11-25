@@ -1,0 +1,6 @@
+benchmark,baseline_SHD,SHD_bge_m3,SHD_e5_large_v2,SHD_minilm_l6
+asia,14,10,9,15
+cancer,3,2,2,4
+medical_diagnostic,18,15,13,18
+covid19,31,27,29,33
+endorisk,72,46,39,55
