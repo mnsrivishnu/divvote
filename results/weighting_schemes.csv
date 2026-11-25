@@ -1,0 +1,6 @@
+benchmark,baseline_SHD,SHD_uniform,SHD_cluster-size,SHD_inverse-variance,SHD_learned-reliability
+asia,14,10,9,10,10
+cancer,3,2,2,2,2
+medical_diagnostic,18,15,14,15,15
+covid19,31,27,25,27,27
+endorisk,72,46,39,46,46

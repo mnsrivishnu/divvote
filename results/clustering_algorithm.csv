@@ -1,0 +1,6 @@
+benchmark,baseline_SHD,SHD_kmeans,SHD_hierarchical,SHD_hdbscan,k_kmeans,k_hierarchical,k_hdbscan
+asia,14,10,10,13,5,5,8
+cancer,3,2,2,3,5,5,8
+medical_diagnostic,18,15,15,17,5,5,8
+covid19,31,27,30,32,5,5,8
+endorisk,72,46,46,53,5,5,8

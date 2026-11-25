@@ -211,6 +211,69 @@ def reliability_weights(validation="asia", gamma=1.0, prompt_style="reference",
     return raw / total, r
 
 
+def _load_medoids_detail(medoids_path=MEDOIDS_PATH):
+    """Return the medoids_detail records (cluster order) from medoids.json."""
+    data = json.loads(Path(medoids_path).read_text(encoding="utf-8"))
+    detail = data.get("medoids_detail")
+    if not detail:
+        raise ValueError(f"No medoids_detail in {medoids_path}.")
+    return detail
+
+
+def cluster_size_weights(medoids_path=MEDOIDS_PATH):
+    """PLAN.md section 4.4: w_j = |C_j| / sum_i |C_i| (cluster-size weighting).
+
+    Dominant framings (larger clusters) weigh more. Returns a length-k array in
+    medoid/cluster order, matching the collect_votes vote-tensor order.
+    """
+    detail = _load_medoids_detail(medoids_path)
+    sizes = np.array([rec["cluster_size"] for rec in detail], dtype=float)
+    total = sizes.sum()
+    if total <= 0:
+        return np.ones_like(sizes) / len(sizes)
+    return sizes / total
+
+
+def cluster_embedding_variances(medoids_path=MEDOIDS_PATH, pool_path=None,
+                                encoder=None):
+    """Per-cluster embedding tightness sigma_j^2 (mean squared member-to-centroid
+    distance) in medoid/cluster order.
+
+    The pool embeddings are L2-normalized (Encoder), and a k-means cluster's
+    centroid is the mean of its member embeddings, so this reproduces the spread
+    used at selection time without re-running k-means. Uses the member lists
+    stored in medoids.json, embedding each member once.
+    """
+    from src.embedding.encoder import Encoder   # lazy: avoids heavy import
+
+    detail = _load_medoids_detail(medoids_path)
+    encoder = encoder or Encoder()
+    # Embed every distinct member prompt once.
+    members = [m for rec in detail for m in rec["members"]]
+    emb = {p: e for p, e in zip(members, encoder.encode(members))}
+    variances = []
+    for rec in detail:
+        E = np.array([emb[m] for m in rec["members"]], dtype=float)
+        centroid = E.mean(axis=0)
+        variances.append(float(np.mean(np.sum((E - centroid) ** 2, axis=1))))
+    return np.array(variances, dtype=float)
+
+
+def inverse_variance_weights(medoids_path=MEDOIDS_PATH, encoder=None, eps=1e-9):
+    """PLAN.md section 4.4: w_j proportional to 1 / sigma_j^2 (inverse-variance).
+
+    Tighter clusters (smaller embedding variance) are trusted more. Returns a
+    normalized length-k array in medoid/cluster order. `eps` guards singleton
+    clusters (sigma_j^2 == 0) against division by zero.
+    """
+    var = cluster_embedding_variances(medoids_path=medoids_path, encoder=encoder)
+    inv = 1.0 / (var + eps)
+    total = inv.sum()
+    if total <= 0:
+        return np.ones_like(inv) / len(inv)
+    return inv / total
+
+
 def run_divvote(benchmark_name, prompt_style="reference", model=DEFAULT_MODEL,
                 use_cache=True, medoids_path=MEDOIDS_PATH, vote_fn=None,
                 weights=None, verbose=True):

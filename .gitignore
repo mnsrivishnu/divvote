@@ -31,9 +31,14 @@ data/prompts/*.json
 !data/prompts/medoids_k3.json
 !data/prompts/medoids_k7.json
 !data/prompts/medoids_k10.json
+# Section 7.4 clustering-algorithm ablation medoid sets (k-means is medoids.json):
+!data/prompts/medoids_hierarchical.json
+!data/prompts/medoids_hdbscan.json
 results/*.csv
-# Section 7.4 ablation summary (tracked alongside its medoid sets):
+# Section 7.4 / 4.4 ablation summaries (tracked alongside their medoid sets):
 !results/cluster_count_ablation.csv
+!results/clustering_algorithm.csv
+!results/weighting_schemes.csv
 results/*.png
 results/*.pdf
 experiments/**/*.csv
